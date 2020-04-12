@@ -2,7 +2,7 @@ version: '2'
 services:
   prometheus:
     container_name: docker-prometheus
-    image: prom/prometheus:v2.17.0
+    image: prom/prometheus:v2.17.1
     user: 8675309:8675309
     entrypoint:
         - /bin/prometheus
