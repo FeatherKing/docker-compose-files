@@ -1,0 +1,28 @@
+version: '2'
+services:
+  unifi:
+    image: linuxserver/unifi-controller:5.12.66-ls54
+    container_name: unifi-controller
+    restart: unless-stopped
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+    labels:
+      - "traefik.enable=true"
+      - "traefik.protocol=https"
+      - "traefik.port=8443"
+      - "traefik.frontend.entryPoints=https"
+      - "traefik.frontend.redirect.entryPoint=https"
+      - "traefik.frontend.rule=Host:unifi.domain.com"
+    ports:
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8082:8080
+      - 8081:8081
+      - 8443:8443
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+    volumes:
+      - /mnt/tank/containers/unifi:/config
+ 

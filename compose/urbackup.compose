@@ -1,0 +1,18 @@
+version: '2'
+services:
+  urbackup:
+    image: uroni/urbackup-server:2.4.x
+    container_name: urbackup-server-1
+    restart: unless-stopped
+    #entrypoint: tail -f /dev/null
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=55414"
+      - "traefik.frontend.rule=Host:urbackup.c.fs"
+    ports:
+      - "55413-55415:55413-55415"
+      - "35623:35623/udp"
+    volumes:
+      - /mnt/tank/Backup:/backup
+      - /mnt/tank/Backup/urbackup:/var/urbackup
+ 

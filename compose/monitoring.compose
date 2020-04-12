@@ -1,0 +1,46 @@
+version: '2'
+services:
+  prometheus:
+    container_name: docker-prometheus
+    image: prom/prometheus:v2.17.0
+    user: 8675309:8675309
+    entrypoint:
+        - /bin/prometheus
+        - --web.external-url=http://prom.c.fs
+        - --storage.tsdb.retention.size=1GB
+        - --storage.tsdb.path=/prometheus
+        - --config.file=/etc/prometheus/prometheus.yml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=9090"
+      - "traefik.frontend.rule=Host:prom.c.fs"
+    ports:
+      - 9191:9090
+    volumes:
+      - /mnt/tank/containers/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /mnt/tank/containers/prometheus/alerts.rules:/etc/prometheus/alerts.rules
+      - /mnt/tank/containers/prometheus/prometheus-data:/prometheus
+
+  grafana:
+    container_name: docker-grafana
+    image: grafana/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=3000"
+      - "traefik.frontend.rule=Host:grafana.c.fs"
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SERVER_ROOT_URL=http://grafana.c.fs
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - /mnt/tank/containers/grafana:/var/lib/grafana
+    user: '8675309'
+
+  alertmanager:
+    container_name: docker-alertmanager
+    image: prom/alertmanager:v0.20.0
+    ports:
+      - 9093:9093
+    volumes:
+      - /mnt/tank/containers/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml

@@ -1,0 +1,162 @@
+version: '2'
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:1.7-alpine
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:traefik.c.fs"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/tank/containers/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - /mnt/tank/containers/traefik/acme.json:/acme.json
+
+  sabnzbd:
+    image: linuxserver/sabnzbd
+    container_name: docker-sabnzbd
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:sabnzbd.c.fs"
+    ports:
+      - "8282:8080"
+      - "9090:9090"
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /mnt/tank/containers/sabnzbd:/config
+      - /mnt/tank/TV:/media/tv
+      - /mnt/tank/Movies:/media/movies
+ 
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: docker-sonarr
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8989"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:sonarr.c.fs"
+    depends_on:
+      - sabnzbd
+      - plex
+    ports:
+      - "8989:8989"
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /dev/rtc:/dev/rtc:ro
+      - /mnt/tank/containers/sonarr:/config
+      - /mnt/tank/TV:/media/tv
+      - /mnt/tank/Movies:/media/movies
+      - /mnt/tank/containers/sabnzbd/config/downloads/complete:/complete
+      - /mnt/tank/containers/sabnzbd/config/downloads/incomplete:/incomplete
+ 
+  radarr:
+    image: linuxserver/radarr
+    container_name: docker-radarr
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=7878"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:radarr.c.fs"
+    depends_on:
+      - sabnzbd
+      - plex
+    ports:
+      - "7878:7878"
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /dev/rtc:/dev/rtc:ro
+      - /mnt/tank/containers/radarr:/config
+      - /mnt/tank/containers/sabnzbd/config/downloads/complete:/complete
+      - /mnt/tank/containers/sabnzbd/config/downloads/incomplete:/incomplete
+      - /mnt/tank/Movies:/media/movies
+ 
+  tautulli:
+    image: linuxserver/tautulli
+    container_name: docker-tautulli
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8181"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:tautulli.c.fs"
+    depends_on:
+      - plex
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ=America/Denver
+    volumes:
+      - /mnt/tank/containers/tautulli:/config
+      - /mnt/tank/containers/plex/Library/Application Support/Plex Media Server/Logs:/logs
+    ports:
+      - "8181:8181"
+    restart: unless-stopped
+ 
+  ombi:
+    image: linuxserver/ombi
+    container_name: docker-ombi
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=3579"
+      - "traefik.frontend.rule=Host:ombi.domain.com"
+      - "traefik.frontend.redirect.entryPoint=https"
+    depends_on:
+      - plex
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ=America/Denver
+    volumes:
+      - /mnt/tank/containers/ombi/config:/config
+    ports:
+      - 3579:3579
+    restart: unless-stopped
+
+  plex:
+    image: linuxserver/plex
+    restart: unless-stopped
+    container_name: docker-plex
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=32400"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.frontend.rule=Host:plex.c.fs"
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - VERSION=latest
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /mnt/tank/containers/plex:/config
+      - /mnt/tank/TV:/media/tv
+      - /mnt/tank/Movies:/media/movies
+      - /mnt/tank/Music:/media/music
+      - /mnt/tank/Pictures:/media/pictures

@@ -1,0 +1,14 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:1.17
+    container_name: docker-nginx
+    restart: unless-stopped
+    ports:
+      - "88:80"
+      - "8443:8443"
+    environment:
+      - NGINX_HOST=nas.c.fs
+    volumes:
+      - /mnt/tank/containers/nginx/www:/usr/share/nginx/html:ro
+      - /mnt/tank/containers/nginx/config:/etc/nginx:ro

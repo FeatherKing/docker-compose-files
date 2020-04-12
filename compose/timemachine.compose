@@ -1,0 +1,20 @@
+version: '2'
+services:
+  timemachine:
+    image: mbentley/timemachine:smb
+    container_name: timemachine
+    restart: unless-stopped
+    #entrypoint: tail -f /dev/null
+    environment:
+      - VOLUME_SIZE_LIMIT=100G
+    labels:
+      - "traefik.enable=false"
+      - "traefik.port=445"
+      - "traefik.frontend.rule=Host:timemachine.c.fs"
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139"
+      - "445:445"
+    volumes:
+      - /mnt/tank/Backup/timemachine:/opt/timemachine

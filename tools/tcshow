@@ -1,0 +1,39 @@
+#!/bin/bash
+## Usage: tcshow ARG1
+##
+## Example: tcshow enp1s0
+##
+## Purpose: Print all tc information for a given device
+##          This will print qdisc, class and filters for the device specified
+##
+
+if [ "$1" == "" ]; then
+  echo "Usage: <$0 interface-name> "
+  exit 1
+fi
+if [ `ip link show | grep -c $1` == "0" ]; then
+  echo "Seems like $1 is not a valid interface name"
+  echo "Usage: <tcshow interface-name> "
+  exit 1
+fi
+
+echo "########## QDISC #############"
+sudo tc -s qdisc show dev $1
+echo "##"
+echo "##"
+echo "########## CLASS #############"
+sudo tc -s class show dev $1
+echo "##"
+echo "##"
+echo "########## FILTER #############"
+sudo tc -s filter show dev $1
+for i in `sudo tc -s filter show dev $1 | awk '{for(i=1;i<=NF;i++)if($i~/flowid/)print $(i+1)}'`
+do
+  if [ `sudo tc -s filter show dev $1 parent $i | grep -c filter` != "0" ]; then
+    echo "####### nested FILTER #########"
+    echo "       Filter(s) on $i"
+    sudo tc -s filter show dev $1 parent $i
+  fi
+done
+echo "##"
+echo "##"
