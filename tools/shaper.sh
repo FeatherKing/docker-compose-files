@@ -35,7 +35,6 @@ tc qdisc del dev $device root 2> /dev/null
 # clean up old iptables rules (in case this gets run multiple times)
 
 # destination LAN
-iptables -D POSTROUTING -t mangle -j WANBOUND
 iptables -D POSTROUTING -s ${private_block_a} -d ${private_block_a} -t mangle -j LANBOUND
 iptables -D POSTROUTING -s ${private_block_a} -d ${private_block_b} -t mangle -j LANBOUND
 iptables -D POSTROUTING -s ${private_block_a} -d ${private_block_c} -t mangle -j LANBOUND
@@ -47,15 +46,7 @@ iptables -D POSTROUTING -s ${private_block_c} -d ${private_block_b} -t mangle -j
 iptables -D POSTROUTING -s ${private_block_c} -d ${private_block_c} -t mangle -j LANBOUND
 
 # destination WAN
-iptables -D POSTROUTING -s ${private_block_a} ! -d ${private_block_a} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_a} ! -d ${private_block_b} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_a} ! -d ${private_block_c} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_b} ! -d ${private_block_a} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_b} ! -d ${private_block_b} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_b} ! -d ${private_block_c} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_c} ! -d ${private_block_a} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_c} ! -d ${private_block_b} -t mangle -j WANBOUND
-iptables -D POSTROUTING -s ${private_block_c} ! -d ${private_block_c} -t mangle -j WANBOUND
+iptables -D POSTROUTING -t mangle -j WANBOUND
 
 # delete chains
 iptables -t mangle -F WANBOUND
