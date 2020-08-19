@@ -2,7 +2,7 @@ version: '2'
 services:
   prometheus:
     container_name: docker-prometheus
-    image: prom/prometheus:v2.17.1
+    image: prom/prometheus:v2.20.1
     user: 8675309:8675309
     entrypoint:
         - /bin/prometheus
@@ -39,8 +39,9 @@ services:
 
   alertmanager:
     container_name: docker-alertmanager
-    image: prom/alertmanager:v0.20.0
+    image: prom/alertmanager:v0.21.0
     ports:
       - 9093:9093
     volumes:
       - /mnt/tank/containers/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+
