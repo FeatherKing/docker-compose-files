@@ -17,7 +17,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/tank/containers/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - /mnt/tank/containers/traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml
+      - /mnt/tank/containers/traefik/file_configs:/etc/traefik/file_configs
       - /mnt/tank/containers/traefik/namecheap_api_user:/etc/traefik/namecheap_api_user
       - /mnt/tank/containers/traefik/namecheap_api_key:/etc/traefik/namecheap_api_key
       - /mnt/tank/containers/traefik/acme2.json:/acme2.json
