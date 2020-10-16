@@ -2,19 +2,25 @@ version: '2'
 services:
   traefik:
     container_name: traefik
-    image: traefik:1.7-alpine
+    image: traefik:2.3
     labels:
       - "traefik.enable=true"
-      - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:traefik.c.fs"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.c.fs`)"
     ports:
       - 80:80
       - 443:443
       - 8080:8080
+    environment:
+      - NAMECHEAP_API_USER_FILE=/etc/traefik/namecheap_api_user
+      - NAMECHEAP_API_KEY_FILE=/etc/traefik/namecheap_api_key
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/tank/containers/traefik/traefik.toml:/etc/traefik/traefik.toml
-      - /mnt/tank/containers/traefik/acme.json:/acme.json
+      - /mnt/tank/containers/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - /mnt/tank/containers/traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml
+      - /mnt/tank/containers/traefik/namecheap_api_user:/etc/traefik/namecheap_api_user
+      - /mnt/tank/containers/traefik/namecheap_api_key:/etc/traefik/namecheap_api_key
+      - /mnt/tank/containers/traefik/acme2.json:/acme2.json
 
   sabnzbd:
     image: linuxserver/sabnzbd
@@ -22,9 +28,9 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.port=8080"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=Host:sabnzbd.c.fs"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
+      - "traefik.http.routers.sabnzbd.entryPoints=http"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.c.fs`)"
     ports:
       - "8282:8080"
       - "9090:9090"
@@ -43,9 +49,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.port=8989"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=Host:sonarr.c.fs"
+      - "traefik.http.routers.sonarr.entryPoints=http"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.c.fs`)"
     depends_on:
       - sabnzbd
       - plex
@@ -69,9 +74,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.port=7878"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=Host:radarr.c.fs"
+      - "traefik.http.routers.radarr.entryPoints=http"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.c.fs`)"
     depends_on:
       - sabnzbd
       - plex
@@ -93,9 +97,8 @@ services:
     container_name: docker-tautulli
     labels:
       - "traefik.enable=true"
-      - "traefik.port=8181"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=Host:tautulli.c.fs"
+      - "traefik.http.routers.tautulli.entryPoints=http"
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.c.fs`)"
     depends_on:
       - plex
     environment:
@@ -114,9 +117,15 @@ services:
     container_name: docker-ombi
     labels:
       - "traefik.enable=true"
-      - "traefik.port=3579"
-      - "traefik.frontend.rule=Host:ombi.domain.com"
-      - "traefik.frontend.redirect.entryPoint=https"
+      - "traefik.http.middlewares.ombiredirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.ombiredirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.ombi.rule=Host(`ombi.domain.com`)"
+      - "traefik.http.routers.ombi.middlewares=ombiredirect"
+      - "traefik.http.routers.ombi.entryPoints=http"
+      - "traefik.http.routers.ombisecure.rule=Host(`ombi.domain.com`)"
+      - "traefik.http.routers.ombisecure.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.ombisecure.tls.certresolver=default"
+      - "traefik.http.routers.ombisecure.entryPoints=https"
     depends_on:
       - plex
     environment:
@@ -135,9 +144,16 @@ services:
     container_name: docker-plex
     labels:
       - "traefik.enable=true"
-      - "traefik.port=32400"
-      - "traefik.frontend.entryPoints=http"
-      - "traefik.frontend.rule=Host:plex.c.fs"
+      - "traefik.http.middlewares.plexredirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.plexredirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.plex-local.rule=Host(`plex.c.fs`)"
+      - "traefik.http.routers.plex-local.entryPoints=http"
+      - "traefik.http.routers.plex-remote.entryPoints=https"
+      - "traefik.http.routers.plex-remote.tls.certresolver=default"
+      - "traefik.http.routers.plex-remote.rule=Host(`plex.domain.com`)"
+      - "traefik.http.routers.plex-remote.middlewares=plexredirect"
+      - "traefik.http.routers.plex-remote.tls.domains[0].main=*.domain.com"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
     devices:
       - /dev/dri:/dev/dri
     ports:

@@ -7,10 +7,11 @@ services:
     #entrypoint: tail -f /dev/null
     environment:
       - VOLUME_SIZE_LIMIT=100G
+      - PASSWORD=timemachine
     labels:
       - "traefik.enable=false"
-      - "traefik.port=445"
-      - "traefik.frontend.rule=Host:timemachine.c.fs"
+      - "traefik.http.services.timemachine.port=445"
+      - "traefik.http.routers.timemachine.rule=Host(`timemachine.c.fs`)"
     ports:
       - "137:137/udp"
       - "138:138/udp"

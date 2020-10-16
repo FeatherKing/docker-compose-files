@@ -9,11 +9,17 @@ services:
       - PGID=8675309
     labels:
       - "traefik.enable=true"
-      - "traefik.protocol=https"
-      - "traefik.port=8443"
-      - "traefik.frontend.entryPoints=https"
-      - "traefik.frontend.redirect.entryPoint=https"
-      - "traefik.frontend.rule=Host:unifi.domain.com"
+      - "traefik.http.middlewares.unifiredirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.unifiredirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.unifi.middlewares=unifiredirect"
+      - "traefik.http.routers.unifi.rule=Host(`unifi.domain.com`)"
+      - "traefik.http.routers.unifi.entryPoints=http"
+      - "traefik.http.routers.unifisecure.rule=Host(`unifi.domain.com`)"
+      - "traefik.http.routers.unifisecure.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.unifisecure.tls.certresolver=default"
+      - "traefik.http.routers.unifisecure.entryPoints=https"
+      - "traefik.http.services.unifisecure.loadbalancer.server.scheme=https"
+      - "traefik.http.services.unifisecure.loadbalancer.server.port=8443"
     ports:
       - 3478:3478/udp
       - 10001:10001/udp

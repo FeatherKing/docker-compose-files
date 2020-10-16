@@ -7,8 +7,8 @@ services:
     #entrypoint: tail -f /dev/null
     labels:
       - "traefik.enable=true"
-      - "traefik.port=55414"
-      - "traefik.frontend.rule=Host:urbackup.c.fs"
+      - "traefik.http.services.urbackup.loadbalancer.server.port=55414"
+      - "traefik.http.routers.urbackup.rule=Host(`urbackup.c.fs`)"
     ports:
       - "55413-55415:55413-55415"
       - "35623:35623/udp"
