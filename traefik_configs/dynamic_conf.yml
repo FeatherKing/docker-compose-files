@@ -1,0 +1,37 @@
+http:
+  routers:
+    rpi:
+      entrypoints:
+        - "http"
+      middlewares:
+        - "rpi-redirect"
+      service: "rpi"
+      rule: "Host(`smoker.domain.com`)"
+    rpisecure:
+      entrypoints:
+        - "https"
+      middlewares:
+        - "rpi-auth"
+        - "rpi-redirect"
+      service: "rpi"
+      rule: "Host(`smoker.domain.com`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.domain.com"
+  
+  services:
+    rpi:
+      loadBalancer:
+        servers:
+          url: "http://192.168.0.81:8000"
+
+  middlewares:
+    rpi-auth:
+      basicAuth:
+        users:
+          - "username:$apr1$rWnB4DqU$pr7tUSkSAmWHbJU5A5hKc1"
+    rpi-redirect:
+      redirectscheme:
+        scheme: "https"
+        permanent: "true"
