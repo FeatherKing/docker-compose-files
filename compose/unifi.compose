@@ -1,7 +1,7 @@
 version: '2'
 services:
   unifi:
-    image: ghcr.io/linuxserver/unifi-controller:version-6.0.45
+    image: ghcr.io/linuxserver/unifi-controller
     container_name: unifi-controller
     restart: unless-stopped
     environment:
@@ -9,17 +9,17 @@ services:
       - PGID=8675309
     labels:
       - "traefik.enable=true"
-      - "traefik.http.middlewares.unifiredirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.unifiredirect.redirectscheme.permanent=true"
-      - "traefik.http.routers.unifi.middlewares=unifiredirect"
-      - "traefik.http.routers.unifi.rule=Host(`unifi.domain.com`)"
-      - "traefik.http.routers.unifi.entryPoints=http"
       - "traefik.http.routers.unifisecure.rule=Host(`unifi.domain.com`)"
+      - "traefik.http.routers.unifisecure.service=unifisecure"
       - "traefik.http.routers.unifisecure.tls.domains[0].main=*.domain.com"
       - "traefik.http.routers.unifisecure.tls.certresolver=default"
-      - "traefik.http.routers.unifisecure.entryPoints=https"
       - "traefik.http.services.unifisecure.loadbalancer.server.scheme=https"
       - "traefik.http.services.unifisecure.loadbalancer.server.port=8443"
+      - "traefik.http.routers.unifiadopt.rule=Host(`unifiadopt.domain.com`)"
+      - "traefik.http.routers.unifiadopt.service=unifiadopt"
+      - "traefik.http.services.unifiadopt.loadbalancer.server.port=8080"
+      - "traefik.http.routers.unifiadopt.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.unifiadopt.tls.certresolver=default"
     ports:
       - 3478:3478/udp
       - 10001:10001/udp

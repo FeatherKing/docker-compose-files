@@ -6,15 +6,16 @@ services:
     user: 8675309:8675309
     entrypoint:
         - /bin/prometheus
-        - --web.external-url=http://prom.c.fs
+        - --web.external-url=http://prom.domain.com
         - --storage.tsdb.retention.size=1GB
         - --storage.tsdb.path=/prometheus
         - --config.file=/etc/prometheus/prometheus.yml
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      - "traefik.http.routers.prometheus.entryPoints=http"
-      - "traefik.http.routers.prometheus.rule=Host(`prom.c.fs`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prom.domain.com`)"
+      - "traefik.http.routers.prometheus.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.prometheus.tls.certresolver=default"
     ports:
       - 9191:9090
     volumes:
@@ -27,12 +28,13 @@ services:
     image: grafana/grafana
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.entryPoints=http"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.c.fs`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.domain.com`)"
+      - "traefik.http.routers.grafana.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.grafana.tls.certresolver=default"
     ports:
       - 3000:3000
     environment:
-      - GF_SERVER_ROOT_URL=http://grafana.c.fs
+      - GF_SERVER_ROOT_URL=http://grafana.domain.com
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - /mnt/tank/containers/grafana:/var/lib/grafana

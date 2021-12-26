@@ -11,7 +11,7 @@ services:
     labels:
       - "traefik.enable=false"
       - "traefik.http.services.timemachine.port=445"
-      - "traefik.http.routers.timemachine.rule=Host(`timemachine.c.fs`)"
+      - "traefik.http.routers.timemachine.rule=Host(`timemachine.domain.com`)"
     ports:
       - "137:137/udp"
       - "138:138/udp"

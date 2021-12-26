@@ -8,7 +8,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.urbackup.loadbalancer.server.port=55414"
-      - "traefik.http.routers.urbackup.rule=Host(`urbackup.c.fs`)"
+      - "traefik.http.routers.urbackup.rule=Host(`urbackup.domain.com`)"
+      - "traefik.http.routers.urbackup.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.urbackup.tls.certresolver=default"
     ports:
       - "55413-55415:55413-55415"
       - "35623:35623/udp"
