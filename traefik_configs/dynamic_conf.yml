@@ -1,36 +1,27 @@
 http:
   routers:
-    rpi:
-      entrypoints:
-        - "http"
+    ledssecure:
       middlewares:
-        - "rpi-redirect"
-      service: "rpi"
-      rule: "Host(`smoker.domain.com`)"
-    rpisecure:
-      entrypoints:
-        - "https"
-      middlewares:
-        - "rpi-auth"
-      service: "rpi"
-      rule: "Host(`smoker.domain.com`)"
+        - "basic-auth"
+      service: "leds"
+      rule: "Host(`leds.domain.com`)"
       tls:
         certResolver: "default"
         domains:
           - main: "*.domain.com"
   
   services:
-    rpi:
+    leds:
       loadBalancer:
         servers:
-          - url: "http://192.168.0.83:8000"
+          - url: "http://192.168.0.30:80"
 
   middlewares:
-    rpi-auth:
+    basic-auth:
       basicAuth:
         users:
           - "username:$apr1$rWnB4DqU$pr7tUSkSAmWHbJU5A5hKc1"
-    rpi-redirect:
+    https-redirect:
       redirectscheme:
         scheme: "https"
         permanent: "true"

@@ -9,11 +9,15 @@ api:
   insecure: "true"
 
 entryPoints:
-  http:
+  web:
     address: ":80"
-    #[entryPoints.http.redirect]
-    #entryPoint = "https"
-  https:
+    http:
+      redirections:
+        entryPoint:
+          to: "websecure"
+          scheme: "https"
+          permanent: "true"
+  websecure:
     address: ":443"
 
 providers:
@@ -32,7 +36,7 @@ metrics:
       - 0.3
       - 1.2
       - 5.0
-    entryPoint: "http"
+    entryPoint: "web"
 
 certificatesResolvers:
   default:
