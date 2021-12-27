@@ -9,12 +9,23 @@ http:
         certResolver: "default"
         domains:
           - main: "*.domain.com"
+    catchall:
+      entryPoints:
+        - "websecure"
+      rule: "PathPrefix(`/`)"
+      service: "unavailable"
+      priority: 1
+      tls:
+        certResolver: "default"
   
   services:
     leds:
       loadBalancer:
         servers:
           - url: "http://192.168.0.30:80"
+    unavailable:
+      loadBalancer:
+        servers: {}
 
   middlewares:
     basic-auth:
@@ -25,3 +36,7 @@ http:
       redirectscheme:
         scheme: "https"
         permanent: "true"
+tls:
+  certificates:
+    - certfile: /etc/traefik/file_configs/wildcard-prod.domain.com.fullchain
+      keyfile: /etc/traefik/file_configs/wildcard-prod.domain.com.key

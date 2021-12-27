@@ -1,0 +1,19 @@
+version: '2'
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:2.5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.domain.com`)"
+      - "traefik.http.routers.traefik.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.traefik.tls.certresolver=default"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/tank/containers/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - /mnt/tank/containers/traefik/file_configs:/etc/traefik/file_configs
