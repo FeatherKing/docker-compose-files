@@ -2,7 +2,7 @@
 
 Collection of docker-compose files to start various services:
 ### Ingress
-- traefik (with LetsEncrypt)
+- traefik (removed LetsEncrypt)
 
 ### Media
 - plex
