@@ -146,3 +146,4 @@ services:
       - /mnt/tank/Movies:/media/movies
       - /mnt/tank/Music:/media/music
       - /mnt/tank/Pictures:/media/pictures
+      - /mnt/tank/HomeVideos:/media/homevideos
