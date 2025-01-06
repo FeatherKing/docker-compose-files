@@ -194,3 +194,4 @@ services:
       - /mnt/tank/Music:/media/music
       - /mnt/tank/Pictures:/media/pictures
       - /mnt/tank/HomeVideos:/media/homevideos
+      - /mnt/tank/Workout:/media/workout
