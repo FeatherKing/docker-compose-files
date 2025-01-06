@@ -1,0 +1,5 @@
+version: "3.5"
+networks:
+  media_default:
+    driver: bridge
+    external: true
