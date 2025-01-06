@@ -2,7 +2,7 @@ version: "3.6"
 networks:
   default:
     name: media_default
-    external: replace.me
+    external: true
 
 services:
   frigate:

@@ -2,7 +2,7 @@ version: '2.4'
 networks:
   default:
     name: media_default
-    external: replace.me
+    external: true
 
 services:
   wyze-bridge:
