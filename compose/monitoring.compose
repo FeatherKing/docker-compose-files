@@ -1,26 +1,32 @@
 version: '2'
+networks:
+  default:
+    name: media_default
+    external: replace.me
+
 services:
   prometheus:
     container_name: docker-prometheus
-    image: prom/prometheus:v2.20.1
+    image: prom/prometheus
     user: 8675309:8675309
     entrypoint:
         - /bin/prometheus
-        - --web.external-url=http://prom.domain.com
-        - --storage.tsdb.retention.size=1GB
+        - --web.external-url=http://prom.replace.me
+        - --storage.tsdb.retention.time=30d
         - --storage.tsdb.path=/prometheus
         - --config.file=/etc/prometheus/prometheus.yml
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      - "traefik.http.routers.prometheus.rule=Host(`prom.domain.com`)"
-      - "traefik.http.routers.prometheus.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.prometheus.rule=Host(`prom.replace.me`)"
+      - "traefik.http.routers.prometheus.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.prometheus.tls.certresolver=default"
     ports:
       - 9191:9090
     volumes:
       - /mnt/tank/containers/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - /mnt/tank/containers/prometheus/alerts.rules:/etc/prometheus/alerts.rules
+      - /mnt/tank/containers/prometheus/recording.rules:/etc/prometheus/recording.rules
       - /mnt/tank/containers/prometheus/prometheus-data:/prometheus
 
   grafana:
@@ -28,13 +34,13 @@ services:
     image: grafana/grafana
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.domain.com`)"
-      - "traefik.http.routers.grafana.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.replace.me`)"
+      - "traefik.http.routers.grafana.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.grafana.tls.certresolver=default"
     ports:
       - 3000:3000
     environment:
-      - GF_SERVER_ROOT_URL=http://grafana.domain.com
+      - GF_SERVER_ROOT_URL=http://grafana.replace.me
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - /mnt/tank/containers/grafana:/var/lib/grafana
@@ -42,9 +48,18 @@ services:
 
   alertmanager:
     container_name: docker-alertmanager
-    image: prom/alertmanager:v0.21.0
+    image: prom/alertmanager
     ports:
       - 9093:9093
     volumes:
       - /mnt/tank/containers/prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
 
+  blackbox:
+    container_name: docker-blackbox
+    image: prom/blackbox-exporter
+    ports:
+      - 9115:9115
+    command:
+      - --config.file=/etc/blackbox/blackbox.yml
+    volumes:
+      - /mnt/tank/containers/prometheus/blackbox.yml:/etc/blackbox/blackbox.yml

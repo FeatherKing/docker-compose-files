@@ -1,0 +1,104 @@
+version: '2.4'
+networks:
+  default:
+    name: media_default
+    external: replace.me
+
+services:
+  wyze-bridge:
+    container_name: wyze-bridge
+    #image: mrlt8/wyze-bridge:dev-qsv
+    image: mrlt8/wyze-bridge:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wyze.service=wyze"
+      - "traefik.http.services.wyze.loadbalancer.server.port=5000"
+      - "traefik.http.routers.wyze.rule=Host(`wyze.replace.me`)"
+      - "traefik.http.routers.wyze.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-drivewaycam.service=wyze-drivewaycam"
+      - "traefik.http.services.wyze-drivewaycam.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-drivewaycam.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-drivewaycam.rule=Host(`wyze.replace.me`) && PathPrefix(`/driveway-cam`, `/driveway-cam-sub`)"
+      - "traefik.http.routers.wyze-drivewaycam.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-drivewaycam.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-drivewaycam.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-hag-driveway.service=wyze-hag-driveway"
+      - "traefik.http.services.wyze-hag-driveway.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-hag-driveway.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-hag-driveway.rule=Host(`wyze.replace.me`) && PathPrefix(`/hag-driveway`, `/hag-driveway-sub`)"
+      - "traefik.http.routers.wyze-hag-driveway.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-hag-driveway.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-hag-driveway.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-driveway-south-floodcam.service=wyze-driveway-south-floodcam"
+      - "traefik.http.services.wyze-driveway-south-floodcam.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-driveway-south-floodcam.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-driveway-south-floodcam.rule=Host(`wyze.replace.me`) && PathPrefix(`/driveway-south-floodcam`, `/driveway-south-floodcam`)"
+      - "traefik.http.routers.wyze-driveway-south-floodcam.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-driveway-south-floodcam.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-driveway-south-floodcam.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-hag-cam.service=wyze-hag-cam"
+      - "traefik.http.services.wyze-hag-cam.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-hag-cam.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-hag-cam.rule=Host(`wyze.replace.me`) && PathPrefix(`/hag-cam`, `/hag-cam-sub`)"
+      - "traefik.http.routers.wyze-hag-cam.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-hag-cam.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-hag-cam.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-cat-cam.service=wyze-cat-cam"
+      - "traefik.http.services.wyze-cat-cam.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-cat-cam.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-cat-cam.rule=Host(`wyze.replace.me`) && PathPrefix(`/cat-cam`, `/cat-cam-sub`)"
+      - "traefik.http.routers.wyze-cat-cam.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-cat-cam.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-cat-cam.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-garage.service=wyze-garage"
+      - "traefik.http.services.wyze-garage.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-garage.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-garage.rule=Host(`wyze.replace.me`) && PathPrefix(`/garage`, `/garage-sub`)"
+      - "traefik.http.routers.wyze-garage.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-garage.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-garage.tls.certresolver=default"
+
+      - "traefik.http.routers.wyze-deck.service=wyze-deck"
+      - "traefik.http.services.wyze-deck.loadbalancer.server.port=8889"
+      - "traefik.http.services.wyze-deck.loadbalancer.server.scheme=http"
+      - "traefik.http.routers.wyze-deck.rule=Host(`wyze.replace.me`) && PathPrefix(`/deck`, `/deck-sub`)"
+      - "traefik.http.routers.wyze-deck.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.wyze-deck.middlewares=basic-auth@file"
+      - "traefik.http.routers.wyze-deck.tls.certresolver=default"
+    ports:
+      - 1935:1935 # RTMP
+      - 8554:8554 # RTSP
+      - 8888:8888 # HLS
+      - 8889:8889 #WebRTC
+      - 8189:8189/udp # WebRTC/ICE
+      - 5000:5000 # WEB-UI
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - WYZE_EMAIL=replaceme
+      - WYZE_PASSWORD=replaceme
+      - SNAPSHOT=RTSP60
+      - H264_ENC=h264_qsv
+      #- LIBVA_DRIVER_NAME=iHD
+      - WB_IP=192.168.0.23
+      #- FORCE_ENCODE=True
+      #- SUBSTREAM=True
+      - MTX_WRITEQUEUESIZE=1024
+      - WB_WEBRTC_URL=https://wyze.replace.me/
+      - WB_HLS_URL=https://wyze.replace.me/
+      - MQTT_HOST=mqtt.replace.me:1883
+      - ENABLE_AUDIO=True
+      - WB_AUTH=False
+    ulimits:
+      nofile:
+        soft: 20000
+        hard: 40000

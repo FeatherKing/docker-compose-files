@@ -1,0 +1,26 @@
+version: '3'
+networks:
+  default:
+    name: media_default
+    external: replace.me
+
+services:
+  adguard:
+    container_name: adguard
+    image: "adguard/adguardhome"
+    volumes:
+      - /mnt/tank/containers/adguard/work:/opt/adguardhome/work
+      - /mnt/tank/containers/adguard/conf:/opt/adguardhome/conf
+    ports:
+      - "192.168.0.23:53:53"
+      - "192.168.0.23:53:53/udp"
+      - "13000:3000"
+      - "13001:80"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.ads.service=ads"
+#      - "traefik.http.services.ads.loadbalancer.server.port=80"
+#      - "traefik.http.services.ads.loadbalancer.server.scheme=http"
+#      - "traefik.http.routers.ads.rule=Host(`ads.replace.me`)"
+#      - "traefik.http.routers.ads.tls.domains[0].main=*.replace.me"
+#      - "traefik.http.routers.ads.tls.certresolver=default"

@@ -4,11 +4,11 @@ http:
       middlewares:
         - "basic-auth"
       service: "leds"
-      rule: "Host(`leds.domain.com`)"
+      rule: "Host(`leds.replace.me`)"
       tls:
         certResolver: "default"
         domains:
-          - main: "*.domain.com"
+          - main: "*.replace.me"
     catchall:
       entryPoints:
         - "websecure"

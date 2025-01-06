@@ -1,35 +1,37 @@
 version: '2'
+networks:
+  default:
+    name: media_default
+    external: replace.me
+
 services:
   sabnzbd:
     image: linuxserver/sabnzbd
     container_name: docker-sabnzbd
-    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
-      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.domain.com`)"
-      - "traefik.http.routers.sabnzbd.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.replace.me`)"
+      - "traefik.http.routers.sabnzbd.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.sabnzbd.tls.certresolver=default"
     ports:
       - "8282:8080"
-      - "9090:9090"
+      - "9091:9090"
     environment:
       - PUID=8675309
       - PGID=8675309
       - TZ:America/Denver
     volumes:
       - /mnt/tank/containers/sabnzbd:/config
-      - /mnt/tank/TV:/media/tv
-      - /mnt/tank/Movies:/media/movies
+      - /mnt/tank/downloads:/downloads
  
   sonarr:
     image: linuxserver/sonarr
     container_name: docker-sonarr
-    restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.domain.com`)"
-      - "traefik.http.routers.sonarr.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.replace.me`)"
+      - "traefik.http.routers.sonarr.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.sonarr.tls.certresolver=default"
     depends_on:
       - sabnzbd
@@ -44,18 +46,40 @@ services:
       - /dev/rtc:/dev/rtc:ro
       - /mnt/tank/containers/sonarr:/config
       - /mnt/tank/TV:/media/tv
-      - /mnt/tank/Movies:/media/movies
-      - /mnt/tank/containers/sabnzbd/config/downloads/complete:/complete
-      - /mnt/tank/containers/sabnzbd/config/downloads/incomplete:/incomplete
+      - /mnt/tank/downloads:/downloads
  
+  sonarr-anime:
+    image: linuxserver/sonarr
+    container_name: docker-sonarr-anime
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.sonarr-anime.loadbalancer.server.port=8989"
+      - "traefik.http.routers.sonarr-anime.rule=Host(`sonarr-anime.replace.me`)"
+      - "traefik.http.routers.sonarr-anime.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.sonarr-anime.tls.certresolver=default"
+    depends_on:
+      - sabnzbd
+      - plex
+    ports:
+      - "8988:8989"
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /dev/rtc:/dev/rtc:ro
+      - /mnt/tank/containers/sonarr-anime:/config
+      - /mnt/tank/TV:/media/tv
+      - /mnt/tank/TV-anime:/media/tv-anime
+      - /mnt/tank/downloads:/downloads
+
   radarr:
     image: linuxserver/radarr
     container_name: docker-radarr
-    restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.domain.com`)"
-      - "traefik.http.routers.radarr.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.replace.me`)"
+      - "traefik.http.routers.radarr.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.radarr.tls.certresolver=default"
     depends_on:
       - sabnzbd
@@ -69,17 +93,41 @@ services:
     volumes:
       - /dev/rtc:/dev/rtc:ro
       - /mnt/tank/containers/radarr:/config
-      - /mnt/tank/containers/sabnzbd/config/downloads/complete:/complete
-      - /mnt/tank/containers/sabnzbd/config/downloads/incomplete:/incomplete
+      - /mnt/tank/downloads:/downloads
       - /mnt/tank/Movies:/media/movies
+
+  radarr-uhd:
+    image: linuxserver/radarr
+    container_name: docker-radarr-uhd
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.radarr-uhd.loadbalancer.server.port=7878"
+      - "traefik.http.routers.radarr-uhd.rule=Host(`radarr-uhd.replace.me`)"
+      - "traefik.http.routers.radarr-uhd.tls.domains[0].main=*.replace.me"
+      - "traefik.http.routers.radarr-uhd.tls.certresolver=default"
+    depends_on:
+      - sabnzbd
+      - plex
+      - radarr
+    ports:
+      - "7879:7878"
+    environment:
+      - PUID=8675309
+      - PGID=8675309
+      - TZ:America/Denver
+    volumes:
+      - /dev/rtc:/dev/rtc:ro
+      - /mnt/tank/containers/radarr-uhd:/config
+      - /mnt/tank/downloads:/downloads
+      - /mnt/tank/Movies-uhd:/media/movies-uhd
  
   tautulli:
     image: linuxserver/tautulli
     container_name: docker-tautulli
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tautullisecure.rule=Host(`tautulli.domain.com`)"
-      - "traefik.http.routers.tautullisecure.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.tautullisecure.rule=Host(`tautulli.replace.me`)"
+      - "traefik.http.routers.tautullisecure.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.tautullisecure.tls.certresolver=default"
     depends_on:
       - plex
@@ -92,15 +140,14 @@ services:
       - /mnt/tank/containers/plex/Library/Application Support/Plex Media Server/Logs:/logs
     ports:
       - "8181:8181"
-    restart: unless-stopped
  
   ombi:
     image: linuxserver/ombi
     container_name: docker-ombi
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ombisecure.rule=Host(`ombi.domain.com`)"
-      - "traefik.http.routers.ombisecure.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.ombisecure.rule=Host(`ombi.replace.me`)"
+      - "traefik.http.routers.ombisecure.tls.domains[0].main=*.replace.me"
       - "traefik.http.routers.ombisecure.tls.certresolver=default"
     depends_on:
       - plex
@@ -112,17 +159,15 @@ services:
       - /mnt/tank/containers/ombi/config:/config
     ports:
       - 3579:3579
-    restart: unless-stopped
 
   plex:
     image: linuxserver/plex
-    restart: unless-stopped
     container_name: docker-plex
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.plex-remote.tls.certresolver=default"
-      - "traefik.http.routers.plex-remote.rule=Host(`plex.domain.com`)"
-      - "traefik.http.routers.plex-remote.tls.domains[0].main=*.domain.com"
+      - "traefik.http.routers.plex-remote.rule=Host(`plex.replace.me`)"
+      - "traefik.http.routers.plex-remote.tls.domains[0].main=*.replace.me"
       - "traefik.http.services.plex.loadbalancer.server.port=32400"
     devices:
       - /dev/dri:/dev/dri
@@ -143,7 +188,9 @@ services:
     volumes:
       - /mnt/tank/containers/plex:/config
       - /mnt/tank/TV:/media/tv
+      - /mnt/tank/TV-anime:/media/tv-anime
       - /mnt/tank/Movies:/media/movies
+      - /mnt/tank/Movies-uhd:/media/movies-uhd
       - /mnt/tank/Music:/media/music
       - /mnt/tank/Pictures:/media/pictures
       - /mnt/tank/HomeVideos:/media/homevideos
