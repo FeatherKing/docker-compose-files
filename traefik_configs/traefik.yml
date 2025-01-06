@@ -1,5 +1,10 @@
 log:
-  level: "WARN"
+  level: "ERROR"
+
+accessLog:
+  filters:
+    statusCodes:
+      - "500-511"
 
 serversTransport:
   insecureSkipVerify: "true"

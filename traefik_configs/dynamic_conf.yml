@@ -1,10 +1,50 @@
 http:
+  serversTransports:
+    scryptedTransport:
+      insecureskipverify: "true"
+
   routers:
-    ledssecure:
+    hexsecure:
       middlewares:
         - "basic-auth"
+      service: "hexlamp"
+      rule: "Host(`hexlamp.replace.me`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.replace.me"
+    ledssecure:
+      middlewares:
       service: "leds"
       rule: "Host(`leds.replace.me`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.replace.me"
+    homea:
+      service: "homea"
+      rule: "Host(`homea.replace.me`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.replace.me"
+    drivewaycam:
+      service: "drivewaycam"
+      rule: "Host(`drivewaycam.replace.me`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.replace.me"
+    unifi:
+      service: "unifi"
+      rule: "Host(`unifi.replace.me`)"
+      tls:
+        certResolver: "default"
+        domains:
+          - main: "*.replace.me"
+    ads:
+      service: "ads"
+      rule: "Host(`ads.replace.me`)"
       tls:
         certResolver: "default"
         domains:
@@ -19,10 +59,30 @@ http:
         certResolver: "default"
   
   services:
+    hexlamp:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.1.179:80"
     leds:
       loadBalancer:
         servers:
-          - url: "http://192.168.0.30:80"
+          - url: "http://10.0.1.94:80"
+    homea:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.24:8123"
+    drivewaycam:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.172:80"
+    unifi:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.0.6:8443"
+    ads:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.5:80"
     unavailable:
       loadBalancer:
         servers: {}
@@ -38,5 +98,5 @@ http:
         permanent: "true"
 tls:
   certificates:
-    - certfile: /etc/traefik/file_configs/wildcard-prod.domain.com.fullchain
-      keyfile: /etc/traefik/file_configs/wildcard-prod.domain.com.key
+    - certfile: /etc/traefik/file_configs/wildcard-prod.replace.me.fullchain
+      keyfile: /etc/traefik/file_configs/wildcard-prod.replace.me.key
